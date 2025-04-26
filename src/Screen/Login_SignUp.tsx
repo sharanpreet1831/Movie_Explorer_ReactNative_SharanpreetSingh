@@ -1,9 +1,13 @@
 import { Button, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React from 'react'
+import LinearGradient from 'react-native-linear-gradient';
 
 const Login_SignUp = () => {
     return (
-        <View style={styles.mainContainer}>
+
+        <LinearGradient style={styles.mainContainer} colors={['#051937', '#000000']}>
+
+
             <SafeAreaView style={styles.box}>
                 <Text style={styles.Mainheading}>MovieVerse </Text>
                 <TextInput
@@ -16,11 +20,15 @@ const Login_SignUp = () => {
                     placeholderTextColor="white"
                     style={styles.BoxStyle}
                 />
-                <TouchableOpacity style={styles.button}>
-                    <Text style={{ color: "white", fontSize: 18 }}>
-                        Sign In
-                    </Text>
+                <TouchableOpacity>
+                    <LinearGradient style={styles.button} colors={['#000000','#051937']}>
+
+                        <Text style={{ color: "white", fontSize: 18 }}  >
+                            Sign In
+                        </Text>
+                    </LinearGradient>
                 </TouchableOpacity>
+
                 <View style={styles.OrBox}>
                     <View style={styles.line}></View>
                     <Text style={{ color: 'white', marginHorizontal: 10 }}>OR</Text>
@@ -30,15 +38,16 @@ const Login_SignUp = () => {
                     <Text style={{ color: "white", fontSize: 17 }} > Sign in with Google </Text>
                 </TouchableOpacity>
                 <View style={styles.LineForSignup}>
-                    <Text style={{ color: "white", fontWeight: '300', fontSize: 15 , marginHorizontal: -10}}>Don't Have an account ?  </Text>
+                    <Text style={{ color: "white", fontWeight: '300', fontSize: 15, marginHorizontal: -10 }}>Don't Have an account ?  </Text>
                     <Button
-                    
+
                         title='Sign up '
                     />
 
                 </View>
             </SafeAreaView>
-        </View>
+        </LinearGradient>
+
     )
 }
 
@@ -120,3 +129,5 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     }
 })
+
+
