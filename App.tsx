@@ -1,11 +1,14 @@
-import {  SafeAreaView, Text } from 'react-native'
+import {  } from 'react-native'
 import React from 'react'
-import Login_SignUp from './src/Screen/Login_SignUp'
+import BottomTabNavigation from './src/navigation/BottomTabNavigation'
+import HomeScreen from './src/Screen/HomeScreen'
+
+BottomTabNavigation
 
 const App = () => {
   return (
     <>
-    <Login_SignUp />
+    <BottomTabNavigation />
     </>
   )
 }
