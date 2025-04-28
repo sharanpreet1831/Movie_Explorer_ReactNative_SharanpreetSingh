@@ -7,7 +7,8 @@ const Movie = () => {
         <ImageBackground
   source={require('../Assests/Image/MovieImage.png')} 
   style={styles.mainContainer}
-  resizeMode= "cover">
+  resizeMode= "cover"
+  >
       <Text style={{ color: 'white', fontSize: 23 }} >Movie</Text>
       <Text style={{ color: 'white', fontSize: 23 }}> ⭐️ 4.5</Text>
       </ImageBackground>
@@ -21,7 +22,7 @@ export default Movie
 const styles = StyleSheet.create({
     mainContainer:{
         
-        width : 150 , 
+        width : 80 , 
         height : 190 ,
         marginHorizontal : 10,
         marginTop : 20,
