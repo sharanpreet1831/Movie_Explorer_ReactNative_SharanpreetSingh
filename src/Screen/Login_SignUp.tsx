@@ -8,25 +8,26 @@ const Login_SignUp = () => {
         <LinearGradient style={styles.mainContainer} colors={['#051937', '#000000']}>
 
 
-            <SafeAreaView style={styles.box}>
-                <Text style={styles.Mainheading}>MovieVerse </Text>
+            <SafeAreaView style={styles.box} testID='LoginScreen'>
+                <Text style={styles.Mainheading} testID='MovieVerse'>MovieVerse </Text>
                 <TextInput
                     placeholder='Email or Username '
                     placeholderTextColor="white"
                     style={styles.BoxStyle}
+                   
                 />
                 <TextInput
                     placeholder='Passwords '
                     placeholderTextColor="white"
                     style={styles.BoxStyle}
                 />
-                <TouchableOpacity>
-                    <LinearGradient style={styles.button} colors={['#000000','#051937']}>
+                <TouchableOpacity style = {styles.signbutton}>
+                   
 
                         <Text style={{ color: "white", fontSize: 18 }}  >
                             Sign In
                         </Text>
-                    </LinearGradient>
+                   
                 </TouchableOpacity>
 
                 <View style={styles.OrBox}>
@@ -127,6 +128,16 @@ const styles = StyleSheet.create({
         // borderColor : 'white',
         alignItems: 'center',
         justifyContent: 'center'
+    },
+    signbutton:{
+        width : "90%" ,
+        height : 50 ,
+        backgroundColor : 'blue',
+        justifyContent : 'center',
+        alignItems : 'center',
+        marginTop : 20,
+        borderRadius : 10
+        
     }
 })
 
