@@ -3,25 +3,25 @@ import React from 'react'
 
 const PlanComponent = () => {
     return (
-        <View style={styles.cardWrapper}>
-            <Text style={styles.Planheading}> Basic</Text>
-            <Text style={styles.priceOfPlan}> $ 7.99 / month</Text>
-            <View style={{ flexDirection: 'row', marginTop: 10 }}>
+        <View style={styles.cardWrapper} testID="plan-card">
+            <Text style={styles.Planheading} testID="plan-title"> Basic</Text>
+            <Text style={styles.priceOfPlan} testID="plan-price"> $ 7.99 / month</Text>
+            <View style={{ flexDirection: 'row', marginTop: 10 }} testID="feature-1">
                 <Text style={styles.subline}> ✔️ </Text>
                 <Text style={styles.sublinetext}> HD Streaming </Text>
             </View>
 
-            <View style={{ flexDirection: 'row', marginTop: 10 }}>
+            <View style={{ flexDirection: 'row', marginTop: 10 }} testID="feature-2">
                 <Text style={styles.subline}> ✔️ </Text>
                 <Text style={styles.sublinetext}>Watch on 1 Device  </Text>
             </View>
 
-            <View style={{ flexDirection: 'row', marginTop: 10 }}>
+            <View style={{ flexDirection: 'row', marginTop: 10 }} testID="feature-3">
                 <Text style={styles.subline}> ✔️ </Text>
                 <Text style={styles.sublinetext}>Limted content Library</Text>
             </View>
 
-            <View style={{ flexDirection: 'row', marginTop: 10 }}>
+            <View style={{ flexDirection: 'row', marginTop: 10 }} testID="feature-4">
                 <Text style={styles.subline}> ✔️ </Text>
                 <Text style={styles.sublinetext}> Basic features </Text>
             </View>

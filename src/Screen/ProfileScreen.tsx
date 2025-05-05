@@ -1,13 +1,22 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
-import LinearGradient from 'react-native-linear-gradient'
+import { useNavigation } from '@react-navigation/native'
+
 
 
 const ProfileScreen = () => {
+    const navigation = useNavigation(); // ✅ corrected variable name
+
+    const handleOut = () => { // ✅ corrected function syntax
+        navigation.reset({
+            index: 0,
+            routes: [{ name: 'Login' }],
+        });
+    };
     return (
        
-            <View style= {styles.mainContainer} testID='MainView' >
-                <Text style = {styles.headingText} testId="MainHeading" > Profile </Text>
+            <View style= {styles.mainContainer} testID='ProfileScreen' >
+                <Text style = {styles.headingText} testID='MainHeading' > Profile </Text>
                 <View style = {styles.profileheading}>
                     <View style = {styles.imageView}>
                         <Image source={require("../Assests/Image/Myphoto.jpeg")} style = {{width : 100  , height : 100 , borderRadius : 50 , borderWidth  : 4 , borderColor : 'green'}  } testID='UserImage' />
@@ -48,7 +57,7 @@ const ProfileScreen = () => {
                     </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity style = {styles.smallbox} testID='Logout'>
+                <TouchableOpacity style = {styles.smallbox} testID='Logout'onPress={handleOut}>
                     <View style = {{flexDirection : 'row', alignItems:'center' }}>
                         <Text style = {[styles.emoji, {fontSize : 20}]}>⌛️</Text>
                         <Text style = {[styles.subTitle2, {color : 'red'}]}> Log Out </Text>

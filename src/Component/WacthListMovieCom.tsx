@@ -3,15 +3,15 @@ import React from 'react'
 
 const WacthListMovieCom = () => {
     return (
-        <View style={styles.mainContainer} >
-            <View style={styles.box1}></View>
-            <View style={styles.box2}>
-                <Text style={styles.MovieName}>The Matrix</Text>
-                <View style={{ flexDirection: 'row' }}>
-                    <Text style={styles.MovieYear}> 2021</Text>
-                    <Text style={styles.TimeOfMovie}> . 2h 28m</Text>
+        <View style={styles.mainContainer} testID="watchlist-container" >
+            <View style={styles.box1}  testID="poster-placeholder"></View>
+            <View style={styles.box2}  testID="details-container">
+                <Text style={styles.MovieName} testID="movie-title">The Matrix</Text>
+                <View style={{ flexDirection: 'row' }} testID="movie-info">
+                    <Text style={styles.MovieYear} testID="movie-year"> 2021</Text>
+                    <Text style={styles.TimeOfMovie} testID="movie-duration"> . 2h 28m</Text>
                 </View>
-                <View style={{ flexDirection: 'row', marginTop: 10 }}>
+                <View style={{ flexDirection: 'row', marginTop: 10 }}b >
                     <Text>⭐️</Text>
                     <Text style={styles.RatingOfMovie}>8.7</Text>
                 </View>

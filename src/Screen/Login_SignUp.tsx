@@ -1,33 +1,80 @@
-import { Button, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React from 'react'
+import { Button, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native'
+import React, { useState } from 'react'
 import LinearGradient from 'react-native-linear-gradient';
+import { useNavigation } from '@react-navigation/native';
+
 
 const Login_SignUp = () => {
+    const [emailOrUsername, setEmailOrUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const navigation = useNavigation();
+
+    const handleLogin = async () => {
+        if (!emailOrUsername || !password) {
+            Alert.alert("Error", "Please fill in all fields");
+            return;
+        }
+
+        try {
+            
+            const response = await fetch('https://movie-ror-priyanshu-singh.onrender.com/api/v1/auth/sign_in', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user:{
+                        email: emailOrUsername,  // this should match your backend param
+                        password: password,
+                    }
+                })
+            });
+
+            const data = await response.json();
+            if (!data.error) {
+                console.log(data);
+                
+                Alert.alert("Success", "Logged in successfully");
+                
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'Bottom' }],
+                });
+                
+            } else{
+                console.log(data);
+                Alert.alert("Login Failed")
+            }
+        } catch (error) {
+            Alert.alert("Network Error", error.response);
+        }
+    };
+
     return (
-
         <LinearGradient style={styles.mainContainer} colors={['#051937', '#000000']}>
-
-
             <SafeAreaView style={styles.box} testID='LoginScreen'>
-                <Text style={styles.Mainheading} testID='MovieVerse'>MovieVerse </Text>
-                <TextInput
-                    placeholder='Email or Username '
-                    placeholderTextColor="white"
-                    style={styles.BoxStyle}
-                   
-                />
-                <TextInput
-                    placeholder='Passwords '
-                    placeholderTextColor="white"
-                    style={styles.BoxStyle}
-                />
-                <TouchableOpacity style = {styles.signbutton}>
-                   
+                <Text style={styles.Mainheading} testID='MovieVerse'>MovieVerse</Text>
 
-                        <Text style={{ color: "white", fontSize: 18 }}  >
-                            Sign In
-                        </Text>
-                   
+                <TextInput
+                    placeholder='Email or Username'
+                    placeholderTextColor="white"
+                    style={styles.BoxStyle}
+                    value={emailOrUsername}
+                    onChangeText={setEmailOrUsername}
+                    testID="email-input"
+                />
+                <TextInput
+                    placeholder='Password'
+                    placeholderTextColor="white"
+                    style={styles.BoxStyle}
+                    secureTextEntry
+                    value={password}
+                    onChangeText={setPassword}
+                    testID="password-input"
+                />
+
+                <TouchableOpacity style={styles.signbutton} onPress={handleLogin} testID="sign-in-button">
+                    <Text style={{ color: "white", fontSize: 18 }}>Sign In</Text>
                 </TouchableOpacity>
 
                 <View style={styles.OrBox}>
@@ -35,25 +82,21 @@ const Login_SignUp = () => {
                     <Text style={{ color: 'white', marginHorizontal: 10 }}>OR</Text>
                     <View style={styles.line}></View>
                 </View>
-                <TouchableOpacity style={styles.GoogleBox}>
-                    <Text style={{ color: "white", fontSize: 17 }} > Sign in with Google </Text>
+
+                <TouchableOpacity style={styles.GoogleBox} testID="google-signin-button">
+                    <Text style={{ color: "white", fontSize: 17 }}>Sign in with Google</Text>
                 </TouchableOpacity>
+
                 <View style={styles.LineForSignup}>
-                    <Text style={{ color: "white", fontWeight: '300', fontSize: 15, marginHorizontal: -10 }}>Don't Have an account ?  </Text>
-                    <Button
-
-                        title='Sign up '
-                    />
-
+                    <Text style={{ color: "white", fontWeight: '300', fontSize: 15 }}>Don't Have an account?</Text>
+                    <Button title='Sign up' onPress={() => navigation.navigate('SignUp')}  testID="signup-button" />
                 </View>
             </SafeAreaView>
         </LinearGradient>
+    );
+};
 
-    )
-}
-
-export default Login_SignUp
-
+export default Login_SignUp;
 const styles = StyleSheet.create({
     mainContainer: {
         backgroundColor: "black",
@@ -78,7 +121,8 @@ const styles = StyleSheet.create({
         width: 342,
         padding: 7,
         marginTop: 15,
-        borderRadius: 10
+        borderRadius: 10,
+        color :'white'
 
     },
     button: {

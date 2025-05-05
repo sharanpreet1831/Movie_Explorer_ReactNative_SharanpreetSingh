@@ -5,7 +5,7 @@ import ProfileScreen from '../src/Screen/ProfileScreen';
 describe('ProfileScreen', () => {
   it('renders the main container', () => {
     const { getByTestId } = render(<ProfileScreen />);
-    expect(getByTestId('MainView')).toBeTruthy();
+    expect(getByTestId('ProfileScreen')).toBeTruthy();
   });
 
  

@@ -2,13 +2,13 @@ import { Image, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect } from 'react'
 import MoiveData from '..//../src/Data/MovieData.json'
 
-const Movie = ({data}) => {
+const Movie = ({data , testID}) => {
 
   
   return (
-    <View style = {styles.mainContainer}>
+    <View style = {styles.mainContainer} testID={testID}>
       <View style = {styles.ImageView}>
-        <Image source={{ uri: data?.thumbnail }} style = {{ width :"100%" , height : "100%"}} />
+        <Image source={{ uri: data?.poster_url }} style = {{ width :"100%" , height : "100%"}} />
       </View>
       <View style = {styles.DescriptionView}>
         <Text style = {styles.movieTitle}>{data?.title}</Text>
