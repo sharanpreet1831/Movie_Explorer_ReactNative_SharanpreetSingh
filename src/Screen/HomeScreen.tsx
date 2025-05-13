@@ -1,129 +1,133 @@
-import { FlatList, Image, ImageBackground, SafeAreaView, ScrollView, StyleSheet, Text, Touchable, TouchableOpacity, View } from 'react-native'
-import React from 'react'
-import LinearGradient from 'react-native-linear-gradient'
-import Movie from '../Component/Movie';
-import MovieData from '../Data/MovieData.json'
-
-const HomeScreen = () => {
-    const categories = ['Action', 'Comedy', 'Drama', 'Horror', 'Romance', 'Sci-Fi'];
+import {
+    ImageBackground,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
+  } from 'react-native';
+  import React, { useEffect, useState } from 'react';
+  import LinearGradient from 'react-native-linear-gradient';
+  import Movie from '../Component/Movie';
+  import { MovieType } from '../type/MovieType';
+  
+  function HomeScreen() {
+    const [movies, setMovies] = useState<MovieType[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+  
+    const fetchMovies = async () => {
+      try {
+        const url = 'https://movie-explorer-ror-aalekh-2ewg.onrender.com/api/v1/movies?page=1&per_page=10';
+        const response = await fetch(url);
+        const json = await response.json();
+        setMovies(json.movies);
+        console.log(json.movies);
+      } catch (error) {
+        console.error('Failed to fetch movies:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    useEffect(() => {
+      fetchMovies();
+    }, []);
+  
     return (
-        <ScrollView >
-            <LinearGradient colors={['#051937', '#000000']} style={styles.mainContainer}>
-                <View style={styles.Header}>
-                    <Text style={{ color: 'white', fontSize: 24 }}>Movie Explorer</Text>
-                    <Text style={{ color: 'white', fontSize: 20 }}>🔍 </Text>
+      <ScrollView>
+        <LinearGradient colors={['#051937', '#000000']} style={styles.mainContainer}>
+          <View style={styles.Header}>
+            <Text style={{ color: 'white', fontSize: 24 }}>Movie Explorer</Text>
+          </View>
+  
+          <View style={styles.continueMovieBox}>
+            <ImageBackground
+              resizeMode="cover"
+              source={require('../Assests/Image/MainImage.png')}
+              style={{ width: '100%', height: 320, justifyContent: 'flex-end' }}
+              testID="mainImageBackground"
+            >
+              <LinearGradient
+                colors={['transparent', 'rgba(0,0,0,0.8)']}
+                style={{ position: 'absolute', width: '100%', height: '100%' }}
+              />
+  
+              <View style={styles.continueMovieBoxDetail}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ backgroundColor: '#2563EB', borderRadius: 20, marginHorizontal: 10 }}>
+                    <Text style={{ color: 'white', fontSize: 13, padding: 7 }}>Now Playing</Text>
+                  </View>
+                  <Text style={{ color: 'white', fontSize: 13 }}>⭐️4.8</Text>
                 </View>
-
-                <View style={styles.continueMovieBox}>
-                    <ImageBackground resizeMode='cover' source={require("../Assests/Image/MainImage.png")} style={{ width: "100%", height: 320, justifyContent: 'flex-end' }}  testID="mainImageBackground">
-                        <LinearGradient
-                            colors={["transparent", "rgba(0,0,0,0.8)"]}
-                            style={{
-                                position: "absolute",
-                                width: "100%",
-                                height: "100%",
-                            }}
-                        />
-
-                        <View style={styles.continueMovieBoxDetail}>
-
-                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <View style={{ backgroundColor: '#2563EB', borderRadius: 20, marginHorizontal: 10 }}>
-                                    <Text style={{ color: 'white', fontSize: 13, padding: 7 }}>Now Playing </Text>
-                                </View>
-                                <Text style={{ color: 'white', fontSize: 13 }}>⭐️4.8</Text>
-                            </View>
-
-                            <View style={styles.NameofContinueMovie}>
-                                <Text style={{ color: 'white', fontSize: 23 }} >Avatar : The Way of Water </Text>
-                            </View>
-                            <TouchableOpacity style={styles.WatchButton}>
-                                <Text style={{ color: 'white', fontSize: 23 }}>Watch Now</Text>
-                            </TouchableOpacity>
-                          
-                            <LinearGradient
-                                colors={["transparent", "rgba(210, 31, 31, 0)"]}
-                                style={{
-                                    position: "absolute",
-                                    width: "100%",
-                                    height: "100%",
-                                }}
-                            />
-                        </View>
-                        /</ImageBackground>
-
+  
+                <View style={styles.NameofContinueMovie}>
+                  <Text style={{ color: 'white', fontSize: 23 }}>Avatar: The Way of Water</Text>
                 </View>
-               
-                <View style = {{flex : 6,}}>
-                    <View style={styles.TrendingMovieBox}>
-                        <Text style={{ color: 'white', fontSize: 23 }} > Trending Now  </Text>
-                        <ScrollView horizontal={true} style = {{paddingVertical : 10 , marginBottom : 5}}  >
-                            {MovieData.map((item) => (
-                                <Movie key={item.id} data={item}   testID="MovieCom"/>
-                            ))}
-                        </ScrollView>
-                    </View>
-
-                    <View style={styles.TrendingMovieBox}>
-                        <Text style={{ color: 'white', fontSize: 23 }} > Popular Movies   </Text>
-                        <ScrollView horizontal={true}  style = {{paddingVertical : 10 , marginBottom : 5}}>
-
-                            {MovieData.map((item) => (
-                                <Movie key={item.id} data={item}  testID="MovieCom" />
-                            ))}
-
-                        </ScrollView>
-                    </View>
-                    <View style={styles.TrendingMovieBox}>
-                        <Text style={{ color: 'white', fontSize: 23 }} > Coming soon</Text>
-                        <ScrollView horizontal={true} style = {{paddingVertical : 10 , marginBottom : 5}} >
-
-                            {MovieData.map((item) => (
-                                <Movie key={item.id} data={item}  testID="MovieCom" />
-                            ))}
-
-                        </ScrollView>
-                    </View>
-                </View>
-
-
-            </LinearGradient>
-        </ScrollView>
-
-    )
-}
-
-export default HomeScreen
+  
+                <TouchableOpacity style={styles.WatchButton}>
+                  <Text style={{ color: 'white', fontSize: 23 }}>Watch Now</Text>
+                </TouchableOpacity>
+              </View>
+            </ImageBackground>
+          </View>
+  
+          <View style={{ flex: 6 }}>
+            <View style={styles.TrendingMovieBox}>
+              <Text style={{ color: 'white', fontSize: 23 }}>Trending Now</Text>
+              <ScrollView horizontal style={{ paddingVertical: 10, marginBottom: 5 }}>
+                {movies.map((item) => (
+                  <Movie key={item.id} data={item} testID="MovieCom" />
+                ))}
+              </ScrollView>
+            </View>
+  
+            <View style={styles.TrendingMovieBox}>
+              <Text style={{ color: 'white', fontSize: 23 }}>Popular Movies</Text>
+              <ScrollView horizontal style={{ paddingVertical: 10, marginBottom: 5 }}>
+                {movies.map((item) => (
+                  <Movie key={item.id} data={item} testID="MovieCom" />
+                ))}
+              </ScrollView>
+            </View>
+  
+            <View style={styles.TrendingMovieBox}>
+              <Text style={{ color: 'white', fontSize: 23 }}>Coming soon</Text>
+              <ScrollView horizontal style={{ paddingVertical: 10, marginBottom: 5 }}>
+                {movies.map((item) => (
+                  <Movie key={item.id} data={item} testID="MovieCom" />
+                ))}
+              </ScrollView>
+            </View>
+          </View>
+        </LinearGradient>
+      </ScrollView>
+    );
+  }
+  
+  export default HomeScreen;
 
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
-        backgroundColor: 'black',
+        backgroundColor: 'black'
     },
     Header: {
         marginTop: 60,
-       
         flexDirection: 'row',
-        justifyContent: "space-between",
+        justifyContent: 'space-between',
         paddingVertical: 15,
         paddingHorizontal: 20,
-        flex: 1,
-
-
+        flex: 1
     },
     continueMovieBox: {
-        
         width: '100%',
         justifyContent: 'flex-end',
         flex: 3,
         borderRadius: 20,
-        overflow: 'hidden',
-      
-
+        overflow: 'hidden'
     },
     continueMovieBoxDetail: {
-
-        height: 124,
+        height: 124
     },
     NameofContinueMovie: {
         paddingHorizontal: 10
@@ -145,14 +149,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         borderRadius: 40
     },
-    TrendingMovieBox: {
+    TrendingMovieBox: {}
+});
 
-        
-
-
-    }
-})
-
-
-
-// <ImageBackground source={require("../Assests/Image/MainImage.png")}  style= {{ width : 100 , height : 100 }}/>

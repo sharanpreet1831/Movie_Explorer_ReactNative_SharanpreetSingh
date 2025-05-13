@@ -1,74 +1,148 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React from 'react'
+import { Image, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import AddMovie from './AddMovie'
+import axios from 'axios'
 
+
+
+type UserData = {
+    name: string;
+    email: string;
+    role: string;
+  };
 
 
 const ProfileScreen = () => {
-    const navigation = useNavigation(); // ✅ corrected variable name
+    const navigation = useNavigation();
+    const [userdata, setUserData] = useState<UserData | null>(null);
+    const [modalVisible, setModalVisible] = useState<boolean>(false);
+  
+    useEffect(() => {
+        const loadUserData = async () => {
+            const data = await AsyncStorage.getItem('userData');
 
-    const handleOut = () => { // ✅ corrected function syntax
-        navigation.reset({
-            index: 0,
-            routes: [{ name: 'Login' }],
-        });
+
+            if (data) {
+                setUserData(JSON.parse(data));
+                console.log(userdata);
+                
+
+            }
+        };
+        loadUserData();
+    }, []);
+
+
+
+
+
+    const handleOut = async() => {
+        try {
+            const token = await AsyncStorage.getItem('token');
+
+            const res = await axios.delete('https://movie-ror-priyanshu-singh.onrender.com/api/v1/logout',{
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+
+            if(res){
+                await AsyncStorage.removeItem('token')
+                await AsyncStorage.removeItem('userData');
+                navigation.popToTop();
+            }
+
+        } catch (error) {
+            console.log(error)
+        }
+    
     };
     return (
-       
-            <View style= {styles.mainContainer} testID='ProfileScreen' >
-                <Text style = {styles.headingText} testID='MainHeading' > Profile </Text>
-                <View style = {styles.profileheading}>
-                    <View style = {styles.imageView}>
-                        <Image source={require("../Assests/Image/Myphoto.jpeg")} style = {{width : 100  , height : 100 , borderRadius : 50 , borderWidth  : 4 , borderColor : 'green'}  } testID='UserImage' />
-                    </View>
-                    <View style = {styles.UserName} >
-                        <Text style= {styles.headingText2} testID='Username'> Sharan </Text>
-                        <Text style = {styles.subTitle} testID='Usermail'>Sharan@magicedtech.com</Text>
-                    </View>
+
+        <View style={styles.mainContainer} testID='ProfileScreen' >
+            <Text style={styles.headingText} testID='MainHeading' > Profile </Text>
+
+            <View style={styles.profileheading}>
+                <View style={styles.imageView}>
+                    <Image source={require("../Assests/Image/Myphoto.jpeg")} style={{ width: 100, height: 100, borderRadius: 50, borderWidth: 4, borderColor: 'green' }} testID='UserImage' />
                 </View>
-
-                <TouchableOpacity style = {styles.smallbox}>
-                    <View style = {{flexDirection : 'row', alignItems:'center' }} testID='AccountSetting'>
-                        <Text style = {styles.emoji}>⚙︎</Text>
-                        <Text style = {styles.subTitle2}> Account Setting </Text>
-                    </View>
-                    <View>
-                        <Text style = {styles.emoji2}>˃</Text>
-                    </View>
-                </TouchableOpacity>
-
-                <TouchableOpacity style = {styles.smallbox} testID='Notification'>
-                    <View style = {{flexDirection : 'row', alignItems:'center' }}>
-                        <Text style = {[styles.emoji, {fontSize : 20}]}>🔔</Text>
-                        <Text style = {styles.subTitle2}> Notification </Text>
-                    </View>
-                    <View>
-                        <Text style = {styles.emoji2}>˃</Text>
-                    </View>
-                </TouchableOpacity>
-
-                <TouchableOpacity style = {styles.smallbox} testID='Help'>
-                    <View style = {{flexDirection : 'row', alignItems:'center' }}>
-                        <Text style = {[styles.emoji, {fontSize : 27}]}>？</Text>
-                        <Text style = {styles.subTitle2}>Help </Text>
-                    </View>
-                    <View>
-                        <Text style = {styles.emoji2}>˃</Text>
-                    </View>
-                </TouchableOpacity>
-
-                <TouchableOpacity style = {styles.smallbox} testID='Logout'onPress={handleOut}>
-                    <View style = {{flexDirection : 'row', alignItems:'center' }}>
-                        <Text style = {[styles.emoji, {fontSize : 20}]}>⌛️</Text>
-                        <Text style = {[styles.subTitle2, {color : 'red'}]}> Log Out </Text>
-                    </View>
-                    <View>
-                        <Text style = {styles.emoji2}>˃</Text>
-                    </View>
-                </TouchableOpacity>
-
+                <View style={styles.UserName} >
+                    <Text style={styles.headingText2} testID='Username'> {userdata?.name || "Users"}  </Text>
+                    <Text style={styles.subTitle} testID='Usermail'>{userdata?.email || "email@example.com"}</Text>
+                </View>
             </View>
-       
+            {
+                userdata?.role === "supervisor" && (
+                    <>
+                        <TouchableOpacity style={styles.smallbox} onPress={ () => setModalVisible(true)}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }} testID='AccountSetting'>
+                                <Text style={styles.emoji}> +</Text>
+                                <Text style={styles.subTitle2}> Add movie </Text>
+                            </View>
+                            <View>
+                                <Text style={styles.emoji2}>˃</Text>
+                            </View>
+                        </TouchableOpacity>
+
+
+                        <Modal  
+                            transparent = {true}
+                            animationType='slide'
+                            visible ={modalVisible}
+                            onRequestClose={() => setModalVisible(false)}
+                             >
+                                <AddMovie  setModalVisible={setModalVisible} />
+                        </Modal>
+                    </>
+
+                )
+
+            }
+
+            <TouchableOpacity style={styles.smallbox}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }} testID='AccountSetting'>
+                    <Text style={styles.emoji}>⚙︎</Text>
+                    <Text style={styles.subTitle2}> Account Setting </Text>
+                </View>
+                <View>
+                    <Text style={styles.emoji2}>˃</Text>
+                </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.smallbox} testID='Notification'>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Text style={[styles.emoji, { fontSize: 20 }]}>🔔</Text>
+                    <Text style={styles.subTitle2}> Notification </Text>
+                </View>
+                <View>
+                    <Text style={styles.emoji2}>˃</Text>
+                </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.smallbox} testID='Help'>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Text style={[styles.emoji, { fontSize: 27 }]}>？</Text>
+                    <Text style={styles.subTitle2}>Help </Text>
+                </View>
+                <View>
+                    <Text style={styles.emoji2}>˃</Text>
+                </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.smallbox} testID='Logout' onPress={handleOut}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Text style={[styles.emoji, { fontSize: 20 }]}>⌛️</Text>
+                    <Text style={[styles.subTitle2, { color: 'red' }]}> Log Out </Text>
+                </View>
+                <View>
+                    <Text style={styles.emoji2}>˃</Text>
+                </View>
+            </TouchableOpacity>
+
+        </View>
+
 
 
     )
@@ -79,70 +153,70 @@ export default ProfileScreen
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
-        borderWidth : 1 ,
-        backgroundColor : "black"
+        borderWidth: 1,
+        backgroundColor: "black"
 
     },
-    headingText:{
-        color : 'white',
-        marginTop : 60 , 
-        fontSize : 26,
-        marginLeft : 20,
-        fontWeight : '700',
-        marginBottom : 10
+    headingText: {
+        color: 'white',
+        marginTop: 60,
+        fontSize: 26,
+        marginLeft: 20,
+        fontWeight: '700',
+        marginBottom: 10
     },
-    profileheading:{
-       
-        flexDirection : 'row'
-        
-    },
-    imageView:{
-        flex : 1 ,
-         
-        padding : 10
-    },
-    UserName:{
-        flex : 2.5,
-       
-        justifyContent : 'center'
+    profileheading: {
+
+        flexDirection: 'row'
 
     },
-    headingText2:{
-        color : 'white',
-       
-        fontSize : 26,
-        
-        fontWeight : '700'
+    imageView: {
+        flex: 1,
+
+        padding: 10
     },
-    subTitle:{
-        color : 'grey',
-        fontSize : 16,
+    UserName: {
+        flex: 2.5,
+
+        justifyContent: 'center'
+
     },
-    smallbox:{
-        
-        borderColor : "red",
-        flexDirection : 'row',
-        justifyContent :'space-between',
-        backgroundColor :'#1a1a1a',
-        margin : 7,
-        padding : 5,
-        borderRadius : 15
-       
-    },
-    emoji:{
-        fontSize : 40,
+    headingText2: {
         color: 'white',
-        marginLeft : 5
+
+        fontSize: 26,
+
+        fontWeight: '700'
     },
-    subTitle2:{
-        color : 'white',
-        fontSize : 20,
-        paddingHorizontal : 10
+    subTitle: {
+        color: 'grey',
+        fontSize: 16,
     },
-    emoji2:{
-        fontSize : 40,
+    smallbox: {
+
+        borderColor: "red",
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        backgroundColor: '#1a1a1a',
+        margin: 7,
+        padding: 5,
+        borderRadius: 15
+
+    },
+    emoji: {
+        fontSize: 40,
         color: 'white',
-        marginRight : 10,
-        alignItems : 'center'
+        marginLeft: 5
+    },
+    subTitle2: {
+        color: 'white',
+        fontSize: 20,
+        paddingHorizontal: 10
+    },
+    emoji2: {
+        fontSize: 40,
+        color: 'white',
+        marginRight: 10,
+        alignItems: 'center'
     },
 })

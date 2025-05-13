@@ -1,112 +1,116 @@
-import { SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native'
-import React, { useState } from 'react'
-import LinearGradient from 'react-native-linear-gradient'
-
-const SignUp = () => {
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [phoneNumber, setPhoneNumber] = useState('');
-
+import {
+    Alert,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
+  } from 'react-native';
+  import React, { useState } from 'react';
+  import LinearGradient from 'react-native-linear-gradient';
+  
+  const SignUp = () => {
+    const [username, setUsername] = useState<string>('');
+    const [email, setEmail] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
+    const [confirmPassword, setConfirmPassword] = useState<string>('');
+    const [phoneNumber, setPhoneNumber] = useState<string>('');
+  
     const handleSignUp = async () => {
-        if (!username || !email || !password || !confirmPassword || !phoneNumber) {
-            Alert.alert("Error", "All fields are required");
-            return;
-        }
-
-        if (password !== confirmPassword) {
-            Alert.alert("Error", "Passwords do not match");
-            return;
-        }
-
-        try {
-            const response = await fetch('https://movie-ror-priyanshu-singh.onrender.com/api/v1/auth/sign_up', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    user: {
-                        name:username,
-                        email,
-                        password,
-                        password_confirmation: confirmPassword,
-                        phone_number: phoneNumber,
-                    },
-                }),
-            });
-
-            const data = await response.json();
-            
-            
-            if (data.user) {
-                console.log(data.user);
-                
-                Alert.alert("Success", "Account created successfully");
-            }else{
-                console.log(data);
-                Alert.alert("Signup failed")
+      if (!username || !email || !password || !confirmPassword || !phoneNumber) {
+        Alert.alert('Error', 'All fields are required');
+        return;
+      }
+  
+      if (password !== confirmPassword) {
+        Alert.alert('Error', 'Passwords do not match');
+        return;
+      }
+  
+      try {
+        const response = await fetch('https://movie-ror-priyanshu-singh.onrender.com/api/v1/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            user: {
+              name: username,
+              email,
+              password,
+              password_confirmation: confirmPassword,
+              phone_number: phoneNumber
             }
-        } catch (error) {
-            console.log("errors: ", error.response);
-            Alert.alert("Error", "Something went wrong");
+          })
+        });
+  
+        const data = await response.json();
+  
+        if (data.user) {
+          Alert.alert('Success', 'Account created successfully');
+        } else {
+          Alert.alert('Signup failed');
         }
+      } catch (error) {
+        console.log('Signup error:', error);
+        Alert.alert('Error', 'Something went wrong');
+      }
     };
-
+  
     return (
-        <LinearGradient style={styles.mainContainer} colors={['#051937', '#000000']}>
-            <SafeAreaView style={styles.ViewOfFields} testID='SignUpScreen'>
-                <Text style={styles.Mainheading}>MovieVerse</Text>
-
-                <TextInput
-                    placeholder='Username'
-                    placeholderTextColor="white"
-                    style={styles.BoxStyle}
-                    value={username}
-                    onChangeText={setUsername}
-                />
-                <TextInput
-                    placeholder='Email'
-                    placeholderTextColor="white"
-                    style={styles.BoxStyle}
-                    value={email}
-                    onChangeText={setEmail}
-                />
-                <TextInput
-                    placeholder='Password'
-                    placeholderTextColor="white"
-                    style={styles.BoxStyle}
-                    secureTextEntry
-                    value={password}
-                    onChangeText={setPassword}
-                />
-                <TextInput
-                    placeholder='Confirm Password'
-                    placeholderTextColor="white"
-                    style={styles.BoxStyle}
-                    secureTextEntry
-                    value={confirmPassword}
-                    onChangeText={setConfirmPassword}
-                />
-                <TextInput
-                    placeholder='Phone Number'
-                    placeholderTextColor="white"
-                    style={styles.BoxStyle}
-                    value={phoneNumber}
-                    onChangeText={setPhoneNumber}
-                />
-
-                <TouchableOpacity style={styles.signbutton} onPress={handleSignUp}>
-                    <Text style={{ color: "white", fontSize: 18 }}>Sign In</Text>
-                </TouchableOpacity>
-            </SafeAreaView>
-        </LinearGradient>
+      <LinearGradient style={styles.mainContainer} colors={['#051937', '#000000']}>
+        <SafeAreaView style={styles.ViewOfFields} testID="SignUpScreen">
+          <Text style={styles.Mainheading}>MovieVerse</Text>
+  
+          <TextInput
+            placeholder="Username"
+            placeholderTextColor="white"
+            style={styles.BoxStyle}
+            value={username}
+            onChangeText={setUsername}
+          />
+          <TextInput
+            placeholder="Email"
+            placeholderTextColor="white"
+            style={styles.BoxStyle}
+            value={email}
+            onChangeText={setEmail}
+          />
+          <TextInput
+            placeholder="Password"
+            placeholderTextColor="white"
+            style={styles.BoxStyle}
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
+          <TextInput
+            placeholder="Confirm Password"
+            placeholderTextColor="white"
+            style={styles.BoxStyle}
+            secureTextEntry
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+          />
+          <TextInput
+            placeholder="Phone Number"
+            placeholderTextColor="white"
+            style={styles.BoxStyle}
+            value={phoneNumber}
+            onChangeText={setPhoneNumber}
+          />
+  
+          <TouchableOpacity style={styles.signbutton} onPress={handleSignUp}>
+            <Text style={{ color: 'white', fontSize: 18 }}>Sign In</Text>
+          </TouchableOpacity>
+        </SafeAreaView>
+      </LinearGradient>
     );
-};
-
-export default SignUp;
-
+  };
+  
+  export default SignUp;
+  
 
 const styles = StyleSheet.create({
     mainContainer: {
@@ -157,3 +161,7 @@ const styles = StyleSheet.create({
 
     }
 })
+
+
+
+// priyanshu's api  :  https://movie-ror-priyanshu-singh.onrender.com/api/v1/auth/sign_up

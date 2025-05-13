@@ -1,0 +1,41 @@
+{
+    "Plan": [
+        {
+            "id": 1,
+            "PlanName": "Basic",
+            "PlanPrice": 7.99,
+            "PlanFeature": [
+                "Hd Streaming",
+                "Watch on 1 Device ",
+                "Limited content Library",
+                "Basic Features"
+            ],
+            "priceId":"price_1RMOEOP1geU3F9JqTri17iy0"
+        },
+        {
+            "id": 2,
+            "PlanName": "Standard ",
+            "PlanPrice": 9.99,
+            "PlanFeature": [
+                "Full HD Streaming",
+                "Watch on 2 Devices",
+                "Access to Standard Library",
+                "Offline Downloads"
+               
+            ],
+            "priceId":"price_1RMOExP1geU3F9Jqv5grNP7H"
+        },
+        {
+            "id": 3,
+            "PlanName": "Premium",
+            "PlanPrice": 12.99,
+            "PlanFeature": [
+                "4K Ultra HD Streaming",
+                "Watch on 4 Devices",
+                "Access to Full Content Library",
+                "Offline Downloads"
+            ],
+            "priceId":"price_1RMOFSP1geU3F9Jqvs4fHcIV"
+        }
+    ]
+}

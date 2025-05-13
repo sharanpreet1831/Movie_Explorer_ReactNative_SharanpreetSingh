@@ -15,7 +15,7 @@ const Tab = createBottomTabNavigator();
 
 const BottomTabNavigation = () => {
     return (
-       <NavigationContainer>
+        
             <Tab.Navigator
                   screenOptions={({ route }) => ({
                     headerShown: false,
@@ -49,9 +49,10 @@ const BottomTabNavigation = () => {
                             <Image
                                 source={iconSource}
                                 style={{
-                                    width: focused ? 20 : 20,
-                                    height: focused ? 20 : 20,
+                                    width: focused ? 22 : 20,
+                                    height: focused ? 22 : 20,
                                     tintColor: color,
+                                    resizeMode:'contain'
                                 }}
                             />
                         );
@@ -66,7 +67,7 @@ const BottomTabNavigation = () => {
                
 
             </Tab.Navigator>
-            </NavigationContainer>
+            
             
        
     )

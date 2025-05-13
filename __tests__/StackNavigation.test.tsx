@@ -5,6 +5,43 @@ import StackNavigation from '../src/navigation/StackNavigation';
 import SignUp from '../src/Screen/SignUp';
 
 
+
+jest.mock('@react-native-async-storage/async-storage', ()=> ({
+  setItem: jest.fn(() => Promise.resolve()),
+    getItem: jest.fn(() => Promise.resolve(null)),
+    removeItem: jest.fn(() => Promise.resolve()),
+    clear: jest.fn(() => Promise.resolve()),
+}));
+
+jest.mock('react-native-dropdown-picker', () => {
+  return jest.fn().mockImplementation(() => null);
+});
+
+jest.mock('react-native-image-picker', () => ({
+  launchImageLibrary: jest.fn((options, callback) => {
+    callback({
+      didCancel: false,
+      assets: [
+        {
+          uri: 'mock-uri',
+          fileName: 'mock-image.jpg',
+          type: 'image/jpeg',
+        },
+      ],
+    });
+  }),
+}));
+
+
+jest.mock('@stripe/stripe-react-native', () => ({
+  useStripe: () => ({
+    initPaymentSheet: jest.fn(() => Promise.resolve({ error: null })),
+    presentPaymentSheet: jest.fn(() => Promise.resolve({ error: null })),
+  }),
+}));
+
+
+
 describe('Stack Navigation', () => {
     // it('navigates to SignUp screen on SignUp button press', async () => {
     //   const { getByText } = render(<StackNavigation />);

@@ -1,80 +1,196 @@
-import { Image, ImageBackground, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React from 'react';
+import {
+  Image,
+  ImageBackground,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
-const MovieDetail = () => {
-    return (
-        <View style={styles.mainContainer} testID="MovieDetailScreen">
-            <View style={styles.imageView}>
-                <ImageBackground blurRadius={5} source={require("../Assests/Image/image.png")} style={{ width: '100%', height: "100%" }}  testID="BlurredBackground" >
-                    <View style={{  margin : 50  , marginTop : 70}}>
-                        <Image source={require("../Assests/Image/image.png")} style={{ width: '100%', height: 450 }} testID="MainMovieImage" />
-                    </View>
-                </ImageBackground>
-
-                
-
-            </View>
-
-
-            <View style={styles.MovieDescription}>
-                <View style={styles.MovieNameData}>
-                    <Text style={{ color: 'white', fontSize: 20, fontWeight: '700' }}   testID="MovieTitle"> John wick : Chapter 4 </Text>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-around', margin: 5 }}>
-                        <View style={{ borderWidth: 1, borderRadius: 10, margin: 10, borderColor: 'white', padding: 5 }}>
-                            <Text style={{ color: 'white' }}  testID="GenreTags" > Action </Text>
-                        </View>
-                        <View style={{ borderWidth: 1, borderRadius: 10, margin: 10, borderColor: 'white', padding: 5 }}>
-                            <Text style={{ color: 'white' }}> Action </Text>
-                        </View>
-                        <View style={{ borderWidth: 1, borderRadius: 10, margin: 10, borderColor: 'white', padding: 5 }}>
-                            <Text style={{ color: 'white' }}> Action </Text>
-                        </View>
-                    </View>
-                    <Text style={{ color: 'white' }} testID="MovieTagline"> NO way back one way out </Text>
-
-                </View>
-                <View style={{ flexDirection: 'row', marginTop: 20 }} testID="RatingAndReleaseDate">
-                    <Text>⭐️</Text>
-                    <Text style={{ color: 'white' }} testID="MovieRating" >8.0</Text>
-                    <Text style={{ color: 'white', marginLeft: 70, fontWeight: '600' }} testID="ReleaseDate"> 24 March 2023</Text>
-                </View>
-                <View style={styles.MovieDes} testID="MovieDescriptionText">
-                    <Text style={{ color: 'white', lineHeight: 20 }}>John Wick is a stylish action-thriller about a retired hitman seeking vengeance after gangsters kill his dog—the last gift from his late wife. As he reenters the criminal underworld, his lethal skills resurface. Intense, visually striking, and emotionally driven, the film redefines modern action with relentless pace and choreography.</Text>
-                </View>
-
-            </View>
-        </View>
-    )
+interface Movie {
+  id: number;
+  title: string;
+  poster_url: string;
+  genre: { name: string };
+  director: string;
+  rating: string;
+  release_year: string;
+  description: string;
 }
 
-export default MovieDetail
+interface RouteParams {
+  movie: Movie;
+}
+
+const MovieDetail = () => {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { movie } = route.params as RouteParams;
+
+  return (
+    <View style={styles.mainContainer} testID="MovieDetailScreen">
+      <View style={styles.imageView}>
+        <ImageBackground
+          blurRadius={5}
+          source={{ uri: movie.poster_url }}
+          style={styles.backgroundImage}
+          testID="BlurredBackground"
+        >
+          <TouchableOpacity
+            style={styles.backbuttonWrapper}
+            onPress={() => navigation.goBack()}
+          >
+            <Image
+              source={require('../Assests/Image/chevron.backward.png')}
+              style={styles.backbutton}
+            />
+          </TouchableOpacity>
+
+          <View style={styles.mainImageWrapper}>
+            <Image
+              source={{ uri: movie.poster_url }}
+              style={styles.mainImage}
+              testID="MainMovieImage"
+            />
+          </View>
+        </ImageBackground>
+      </View>
+
+      <View style={styles.movieDescription}>
+        <View style={styles.movieNameData}>
+          <Text style={styles.movieTitle} testID="MovieTitle">
+            {movie.title}
+          </Text>
+
+          <View style={styles.genreRow}>
+            <View style={styles.genreTag}>
+              <Text style={styles.genreText} testID="GenreTags">
+                {movie.genre.name}
+              </Text>
+            </View>
+          </View>
+
+          <Text style={styles.director} testID="Moviedirector">
+            Director: {movie.director}
+          </Text>
+        </View>
+
+        <View style={styles.ratingRow} testID="RatingAndReleaseDate">
+          <Text>⭐️</Text>
+          <Text style={styles.rating} testID="MovieRating">
+            {movie.rating}
+          </Text>
+          <Text style={styles.releaseDate} testID="ReleaseDate">
+            {movie.release_year}
+          </Text>
+        </View>
+
+        <View style={styles.descriptionWrapper} testID="MovieDescriptionText">
+          <Text style={styles.descriptionText}>{movie.description}</Text>
+        </View>
+      </View>
+    </View>
+  );
+};
+
+export default MovieDetail;
+
 
 const styles = StyleSheet.create({
-    mainContainer: {
-        flex: 1,
-
-    },
-    imageView: {
-        flex: 1,
-        borderWidth: 1,
-
-    },
-    MovieDescription: {
-        flex: 1,
-
-        backgroundColor: 'black'
-
-    },
-    MovieNameData: {
-        borderWidth: 1,
-        alignItems: 'center'
-    },
-    MovieDes: {
-        // borderWidth: 1 ,
-        // borderColor : 'white',
-        marginTop: 10,
-        padding: 10,
-
-
-    }
-})
+  mainContainer: {
+    flex: 1,
+  },
+  imageView: {
+    flex: 1,
+  },
+  backgroundImage: {
+    width: '100%',
+    height: '100%',
+  },
+  mainImageWrapper: {
+    margin: 50,
+    marginTop: 70,
+    zIndex : 1
+  },
+  mainImage: {
+    width: '100%',
+    height: 450,
+  },
+  movieDescription: {
+    flex: 1,
+    backgroundColor: 'black',
+    paddingHorizontal: 10,
+  },
+  movieNameData: {
+    alignItems: 'center',
+  },
+  movieTitle: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: '700',
+    marginTop : 90
+  },
+  genreRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginVertical: 10,
+  },
+  genreTag: {
+    borderWidth: 1,
+    borderColor: 'white',
+    borderRadius: 10,
+    padding: 5,
+    margin: 5,
+  },
+  genreText: {
+    color: 'white',
+  },
+  director: {
+    color: 'white',
+    fontStyle: 'italic',
+    textAlign: 'center',
+  },
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 20,
+    justifyContent: 'center',
+    gap: 10,
+  },
+  rating: {
+    color: 'white',
+    marginLeft: 5,
+  },
+  releaseDate: {
+    color: 'white',
+    marginLeft: 40,
+    fontWeight: '600',
+  },
+  descriptionWrapper: {
+    marginTop: 10,
+    padding: 10,
+  },
+  descriptionText: {
+    color: 'white',
+    lineHeight: 20,
+  },
+  backbuttonWrapper: {
+    position: 'absolute',
+    top: 50,
+    left: 15,
+    zIndex: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    borderRadius: 25,
+    padding: 10,
+    // borderWidth : 1,
+    // borderColor : 'white'
+  },
+  
+  backbutton: {
+    width: 20,
+    height: 20,
+    tintColor: 'white',
+  },
+});
