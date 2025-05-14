@@ -1,3 +1,162 @@
+/
+
+
+import React from 'react';
+import { render, fireEvent, waitFor } from '@testing-library/react-native';
+
+import { launchImageLibrary } from 'react-native-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import AddMovie from '../src/Screen/AddMovie';
+
+
+jest.mock('react-native-image-picker', () => ({
+  launchImageLibrary: jest.fn(),
+}));
+
+
+jest.mock('@react-native-async-storage/async-storage', () => ({
+  getItem: jest.fn(),
+}));
+
+
+global.fetch = jest.fn();
+
+  jest.mock('react-native-dropdown-picker', () => {
+    return jest.fn().mockImplementation(() => null);
+  });
+  
+
+describe('AddMovie Component', () => {
+  const mockSetModalVisible = jest.fn();
+
+  
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (AsyncStorage.getItem as jest.Mock).mockResolvedValue('mock-token');
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ message: 'Movie added successfully' }),
+    });
+  });
+
+  
+  it('renders the AddMovie component correctly', () => {
+    const { getByTestId, getByText } = render(
+      <AddMovie setModalVisible={mockSetModalVisible} />
+    );
+
+    expect(getByTestId('titleInput')).toBeTruthy();
+    expect(getByTestId('releaseYearInput')).toBeTruthy();
+    expect(getByTestId('ratingInput')).toBeTruthy();
+    expect(getByTestId('directorInput')).toBeTruthy();
+    expect(getByTestId('durationInput')).toBeTruthy();
+    expect(getByTestId('descriptionInput')).toBeTruthy();
+    expect(getByTestId('addMovieButton')).toBeTruthy();
+    expect(getByText('Title of movie')).toBeTruthy();
+  });
+
+  it('closes the modal when the close button is pressed', () => {
+    const { getByTestId } = render(
+      <AddMovie setModalVisible={mockSetModalVisible} />
+    );
+
+    const closeButton = getByTestId('closeModalButton');
+    fireEvent.press(closeButton);
+
+    expect(mockSetModalVisible).toHaveBeenCalledWith(false);
+  });
+
+  
+  it('updates input fields when text is entered', () => {
+    const { getByTestId } = render(
+      <AddMovie setModalVisible={mockSetModalVisible} />
+    );
+
+    const titleInput = getByTestId('titleInput');
+    fireEvent.changeText(titleInput, 'Inception');
+
+    expect(titleInput.props.value).toBe('Inception');
+  });
+
+  
+  it('handles poster image selection', async () => {
+    // const mockImage = { assets: [{ uri: 'file://poster.jpg' }] };
+    // (launchImageLibrary as jest.Mock).mockImplementation((options, callback) =>
+    //   callback(mockImage)
+    // );
+
+    // const { getByText, findByTestId } = render(
+    //   <AddMovie setModalVisible={mockSetModalVisible} />
+    // );
+
+    // const posterButton = getByText('Choose Image');
+    // fireEvent.press(posterButton);
+
+    // const posterImage = await findByTestId('titleInput'); // Note: Image doesn't have testID, adjust if added
+    // expect(launchImageLibrary).toHaveBeenCalled();
+    // Verify image is displayed (requires testID on Image component)
+  });
+
+  
+  it('submits the form and calls the API', async () => {
+    const { getByTestId } = render(
+      <AddMovie setModalVisible={mockSetModalVisible} />
+    );
+
+    // Fill in some fields
+    fireEvent.changeText(getByTestId('titleInput'), 'Inception');
+    fireEvent.changeText(getByTestId('releaseYearInput'), '2010');
+    fireEvent.changeText(getByTestId('ratingInput'), '8.8');
+    fireEvent.changeText(getByTestId('directorInput'), 'Christopher Nolan');
+    fireEvent.changeText(getByTestId('durationInput'), '148');
+    fireEvent.changeText(getByTestId('descriptionInput'), 'A mind-bending thriller');
+
+    
+    const addButton = getByTestId('addMovieButton');
+    fireEvent.press(addButton);
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        'https://movie-ror-priyanshu-singh.onrender.com/api/v1/movies',
+        expect.objectContaining({
+          method: 'POST',
+          headers: expect.objectContaining({
+            'Content-Type': 'multipart/form-data',
+            Authorization: 'Bearer mock-token',
+          }),
+        })
+      );
+      expect(mockSetModalVisible).toHaveBeenCalledWith(false);
+    });
+  });
+
+  
+  it('handles API error gracefully', async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: false,
+      json: () => Promise.resolve({ message: 'Failed to add movie' }),
+    });
+
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+    const { getByTestId } = render(
+      <AddMovie setModalVisible={mockSetModalVisible} />
+    );
+
+    fireEvent.changeText(getByTestId('titleInput'), 'Inception');
+    const addButton = getByTestId('addMovieButton');
+    fireEvent.press(addButton);
+
+    await waitFor(() => {
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Failed to add movie:',
+        'Failed to add movie'
+      );
+    });
+
+    consoleErrorSpy.mockRestore();
+  });
+});
 // import React from 'react';
 // import { render, fireEvent, waitFor } from '@testing-library/react-native';
 // import AddMovie from '../src/Screen/AddMovie';
@@ -93,164 +252,3 @@
 //     });
 //   });
 // });
-
-
-
-import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
-
-import { launchImageLibrary } from 'react-native-image-picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import AddMovie from '../src/Screen/AddMovie';
-
-// Mock react-native-image-picker
-jest.mock('react-native-image-picker', () => ({
-  launchImageLibrary: jest.fn(),
-}));
-
-// Mock AsyncStorage
-jest.mock('@react-native-async-storage/async-storage', () => ({
-  getItem: jest.fn(),
-}));
-
-// Mock fetch for API calls
-global.fetch = jest.fn();
-
-  jest.mock('react-native-dropdown-picker', () => {
-    return jest.fn().mockImplementation(() => null);
-  });
-  
-
-describe('AddMovie Component', () => {
-  const mockSetModalVisible = jest.fn();
-
-  // Reset mocks before each test
-  beforeEach(() => {
-    jest.clearAllMocks();
-    (AsyncStorage.getItem as jest.Mock).mockResolvedValue('mock-token');
-    (global.fetch as jest.Mock).mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ message: 'Movie added successfully' }),
-    });
-  });
-
-  // Test 1: Renders correctly
-  it('renders the AddMovie component correctly', () => {
-    const { getByTestId, getByText } = render(
-      <AddMovie setModalVisible={mockSetModalVisible} />
-    );
-
-    expect(getByTestId('titleInput')).toBeTruthy();
-    expect(getByTestId('releaseYearInput')).toBeTruthy();
-    expect(getByTestId('ratingInput')).toBeTruthy();
-    expect(getByTestId('directorInput')).toBeTruthy();
-    expect(getByTestId('durationInput')).toBeTruthy();
-    expect(getByTestId('descriptionInput')).toBeTruthy();
-    expect(getByTestId('addMovieButton')).toBeTruthy();
-    expect(getByText('Title of movie')).toBeTruthy();
-  });
-
-  // Test 2: Closes modal when close button is pressed
-  it('closes the modal when the close button is pressed', () => {
-    const { getByTestId } = render(
-      <AddMovie setModalVisible={mockSetModalVisible} />
-    );
-
-    const closeButton = getByTestId('closeModalButton');
-    fireEvent.press(closeButton);
-
-    expect(mockSetModalVisible).toHaveBeenCalledWith(false);
-  });
-
-  // Test 3: Updates input fields
-  it('updates input fields when text is entered', () => {
-    const { getByTestId } = render(
-      <AddMovie setModalVisible={mockSetModalVisible} />
-    );
-
-    const titleInput = getByTestId('titleInput');
-    fireEvent.changeText(titleInput, 'Inception');
-
-    expect(titleInput.props.value).toBe('Inception');
-  });
-
-  // Test 4: Handles image selection for poster
-  it('handles poster image selection', async () => {
-    // const mockImage = { assets: [{ uri: 'file://poster.jpg' }] };
-    // (launchImageLibrary as jest.Mock).mockImplementation((options, callback) =>
-    //   callback(mockImage)
-    // );
-
-    // const { getByText, findByTestId } = render(
-    //   <AddMovie setModalVisible={mockSetModalVisible} />
-    // );
-
-    // const posterButton = getByText('Choose Image');
-    // fireEvent.press(posterButton);
-
-    // const posterImage = await findByTestId('titleInput'); // Note: Image doesn't have testID, adjust if added
-    // expect(launchImageLibrary).toHaveBeenCalled();
-    // Verify image is displayed (requires testID on Image component)
-  });
-
-  // Test 5: Submits the form and calls the API
-  it('submits the form and calls the API', async () => {
-    const { getByTestId } = render(
-      <AddMovie setModalVisible={mockSetModalVisible} />
-    );
-
-    // Fill in some fields
-    fireEvent.changeText(getByTestId('titleInput'), 'Inception');
-    fireEvent.changeText(getByTestId('releaseYearInput'), '2010');
-    fireEvent.changeText(getByTestId('ratingInput'), '8.8');
-    fireEvent.changeText(getByTestId('directorInput'), 'Christopher Nolan');
-    fireEvent.changeText(getByTestId('durationInput'), '148');
-    fireEvent.changeText(getByTestId('descriptionInput'), 'A mind-bending thriller');
-
-    // Mock dropdown selections (requires mocking DropDownPicker or simulating selection)
-    // For simplicity, assume values are set via state
-    const addButton = getByTestId('addMovieButton');
-    fireEvent.press(addButton);
-
-    await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
-        'https://movie-ror-priyanshu-singh.onrender.com/api/v1/movies',
-        expect.objectContaining({
-          method: 'POST',
-          headers: expect.objectContaining({
-            'Content-Type': 'multipart/form-data',
-            Authorization: 'Bearer mock-token',
-          }),
-        })
-      );
-      expect(mockSetModalVisible).toHaveBeenCalledWith(false);
-    });
-  });
-
-  // Test 6: Handles API error
-  it('handles API error gracefully', async () => {
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: false,
-      json: () => Promise.resolve({ message: 'Failed to add movie' }),
-    });
-
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-
-    const { getByTestId } = render(
-      <AddMovie setModalVisible={mockSetModalVisible} />
-    );
-
-    fireEvent.changeText(getByTestId('titleInput'), 'Inception');
-    const addButton = getByTestId('addMovieButton');
-    fireEvent.press(addButton);
-
-    await waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Failed to add movie:',
-        'Failed to add movie'
-      );
-    });
-
-    consoleErrorSpy.mockRestore();
-  });
-});

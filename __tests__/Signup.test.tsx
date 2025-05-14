@@ -41,7 +41,7 @@ describe('SignUp Component', () => {
     fireEvent.press(getByText('Sign In'));
 
     await waitFor(() => {
-      // Since Alert is not visible in tests, you would mock it
+      
     });
   });
 
