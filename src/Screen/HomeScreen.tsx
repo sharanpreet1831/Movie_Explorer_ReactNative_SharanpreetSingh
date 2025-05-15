@@ -9,8 +9,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import Movie from '../Component/Movie';
-import { MovieT }
-  
+
   function HomeScreen() {
         const [movies, setMovies] = useState<MovieType[]>([]);
         const [loading, setLoading] = useState<boolean>(true);
