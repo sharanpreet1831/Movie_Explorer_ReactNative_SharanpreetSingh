@@ -49,7 +49,7 @@ const PlanComponent: React.FC<PlanComponentProps> = ({ plandata }) => {
                     {plandata["PlanName"]?.trim()}
                 </Text>
                 <Text style={styles.priceOfPlan} testID="plan-price">
-                    ${plandata.PlanPrice} / month
+                    Rs.{plandata.PlanPrice} / month
                 </Text>
 
                 {plandata.PlanFeature?.map((feature, index) => (

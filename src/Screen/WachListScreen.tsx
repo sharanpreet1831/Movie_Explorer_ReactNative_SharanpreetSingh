@@ -1,9 +1,11 @@
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import WacthListMovieCom from '../Component/WacthListMovieCom';
+import { useFocusEffect } from '@react-navigation/native';
 
-// Define the type for a Movie
+
+
 interface Movie {
   id: string;
   title: string;
@@ -11,23 +13,49 @@ interface Movie {
 }
 
 const WachListScreen: React.FC = () => {
-  const [selectedTab, setSelectedTab] = useState<'wantToWatch' | 'watched' | null>('wantToWatch'); // Default tab
+  const [selectedTab, setSelectedTab] = useState<'wantToWatch' | 'watched' | null>('wantToWatch');
+  const [reaload,setReload]=useState(false);
+  const [moviesData, setMoviesData] = useState([]);
 
-  const handleTabPress = (tab: 'wantToWatch' | 'watched') => {
-    setSelectedTab(selectedTab === tab ? null : tab);
+  const fetchdata = async () => {
+    try {
+      const url = "https://movie-ror-priyanshu-singh.onrender.com/api/v1/watchlist";
+      const response = await fetch(url);
+      const data = await response.json();
+      console.log(data);
+      setMoviesData(data);
+    } catch (error) {
+      console.error(error);
+    }
   };
+  const removemovie = async (id: string) =>{
+    try {
+      const url = `https://movie-ror-priyanshu-singh.onrender.com/api/v1/watchlist/${id}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
 
-  const movies: Movie[] = [
-    { id: '1', title: 'Movie 1', status: 'wantToWatch' },
-    { id: '2', title: 'Movie 2', status: 'watched' },
-    { id: '3', title: 'Movie 3', status: 'wantToWatch' },
-    { id: '4', title: 'Movie 4', status: 'watched' },
-    { id: '5', title: 'Movie 5', status: 'wantToWatch' },
-  ];
+        },
+         body: JSON.stringify({ id }),
 
-  const filteredMovies = selectedTab
-    ? movies.filter((movie) => movie.status === selectedTab)
-    : movies;
+      });
+       if (!response.ok) {
+      throw new Error(`Failed to remove movie with id: ${id}`);
+    }
+    setReload(!reaload);
+
+    }
+    catch (error) {
+      console.error(error);
+    }
+  }
+useFocusEffect(
+  React.useCallback(() => {
+    fetchdata();
+  }, [reaload])
+);
+
 
   return (
     <View style={{ flex: 1 }} testID="MainView">
@@ -35,33 +63,13 @@ const WachListScreen: React.FC = () => {
         <View style={{ marginTop: 60 }}>
           <Text style={styles.headingtext}>My WatchList</Text>
 
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <TouchableOpacity
-              style={[
-                styles.buttonWrap,
-                { backgroundColor: selectedTab === 'wantToWatch' ? 'blue' : 'gray' },
-              ]}
-              onPress={() => handleTabPress('wantToWatch')}
-            >
-              <Text style={styles.buttonText}>Want to Watch</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.buttonWrap,
-                { backgroundColor: selectedTab === 'watched' ? 'blue' : 'gray' },
-              ]}
-              onPress={() => handleTabPress('watched')}
-            >
-              <Text style={styles.buttonText}>Watched</Text>
-            </TouchableOpacity>
-          </View>
+         
 
           <FlatList
-            data={filteredMovies}
+            data={moviesData}
             keyExtractor={(item) => item.id}
-            // contentContainerStyle={styles.movieList}
-            renderItem={({ item }) => <WacthListMovieCom  />}
+          
+            renderItem={({ item }) => <WacthListMovieCom data= {item}  removemovie={removemovie}/>}
           />
         </View>
       </LinearGradient>

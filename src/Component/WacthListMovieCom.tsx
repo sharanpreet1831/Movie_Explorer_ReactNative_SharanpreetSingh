@@ -1,25 +1,27 @@
-import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Button, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React from 'react';
 
 
 
 
-const WacthListMovieCom = () => {
+const WacthListMovieCom = ({data,removemovie}) => {
     return (
         <View style={styles.mainContainer} testID="watchlist-container">
-            <View style={styles.box1} testID="poster-placeholder"></View>
+            <View style={styles.box1} testID="poster-placeholder">
+                <Image  source={{uri: data.poster_url }}  style={styles.image} />
+            </View>
             <View style={styles.box2} testID="details-container">
-                <Text style={styles.MovieName} testID="movie-title">The Matrix</Text>
+                <Text style={styles.MovieName} testID="movie-title">{data.title}</Text>
                 <View style={{ flexDirection: 'row' }} testID="movie-info">
-                    <Text style={styles.MovieYear} testID="movie-year"> 2021</Text>
-                    <Text style={styles.TimeOfMovie} testID="movie-duration"> . 2h 28m</Text>
+                    <Text style={styles.MovieYear} testID="movie-year"> {data.release_year}.</Text>
+                    <Text style={styles.TimeOfMovie} testID="movie-duration"> {data.duration} min</Text>
                 </View>
                 <View style={{ flexDirection: 'row', marginTop: 10 }} testID="movie-rating">
                     <Text>⭐️</Text>
-                    <Text style={styles.RatingOfMovie} testID="movie-score">8.7</Text>
+                    <Text style={styles.RatingOfMovie} testID="movie-score">{data.rating}</Text>
                 </View>
                 <View style={{ flex: 1, justifyContent: 'flex-end' }} testID="remove-button-container">
-                    <TouchableOpacity style={styles.RemoveButtonStyle}>
+                    <TouchableOpacity style={styles.RemoveButtonStyle} onPress={()=>removemovie(data.id)}>
                         <Text style={{ color: 'skyblue' }}>Remove</Text>
                     </TouchableOpacity>
                 </View>
@@ -43,7 +45,8 @@ const styles = StyleSheet.create({
         backgroundColor : 'grey',
         flex: 1,
         margin: 10,
-        borderRadius: 10
+        borderRadius: 10,
+        
     },
     box2: {
        
@@ -76,5 +79,11 @@ const styles = StyleSheet.create({
     RemoveButtonStyle: {
        
        
+    },
+    image : {
+        width :" 100%", 
+        height : "100%",
+        borderRadius : 10
+        
     }
 })

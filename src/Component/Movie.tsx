@@ -20,7 +20,7 @@ interface MovieProps {
 
 const Movie: React.FC<MovieProps> = ({ data, testID }) => {
   const navigation = useNavigation();
-  const [userDetail, setUserDetail] = useState<any>();  
+  const [userDetail, setUserDetail] = useState<any>();
   const [modalVisible, setModalVisible] = useState(false)
 
   const getdata = async () => {
@@ -38,11 +38,24 @@ const Movie: React.FC<MovieProps> = ({ data, testID }) => {
   }
 
   useEffect(() => {
+    // console.log(data);
+    
     getdata()
   }, [])
 
+
   return (
-    <TouchableOpacity style={styles.mainContainer} testID={testID} onPress={() => navigation.navigate('MovieDetail', { movie: data })}>
+    <TouchableOpacity style={styles.mainContainer} testID={testID} onPress={() => {
+    if (data.premium) {
+      if (userDetail?.plan_type  === 'premium') {
+        navigation.navigate('MovieDetail', { movie: data });
+      } else {
+        Alert.alert("Access Denied", "Buy premium to open this movie.");
+      }
+    } else {
+      navigation.navigate('MovieDetail', { movie: data });
+    }
+  }}>
       <View style={styles.ImageView}>
         <Image source={{ uri: data?.poster_url }} style={{ width: "100%", height: "100%" }} />
       </View>
@@ -57,12 +70,18 @@ const Movie: React.FC<MovieProps> = ({ data, testID }) => {
 
         </View>
 
-      </View>
 
+      </View>
+      {data.premium === true && (
+        <Image
+          source={require('../Assests/Image/crown.fill.png')}
+          style={styles.crown}
+        />
+      )}
       {
         userDetail?.role === "supervisor" && (
           <>
-            <TouchableOpacity style={styles.pencilBox} onPress={() => setModalVisible(true)}   testID="pencilBox" >
+            <TouchableOpacity style={styles.pencilBox} onPress={() => setModalVisible(true)} testID="pencilBox" >
               <Image source={require('../Assests/Image/pencil.png')} style={styles.pencilImage} />
             </TouchableOpacity>
 
@@ -71,7 +90,7 @@ const Movie: React.FC<MovieProps> = ({ data, testID }) => {
               animationType='slide'
               visible={modalVisible}
               onRequestClose={() => setModalVisible(false)}
-               testID="editModal"
+              testID="editModal"
 
             >
               <MovieEdit setModalVisible={setModalVisible} data={data} />
@@ -91,13 +110,13 @@ const styles = StyleSheet.create({
     padding: 10,
     width: 160,
     height: 250,
-   
+
     borderColor: 'grey',
     backgroundColor: 'black',
     borderRadius: 12,
     marginHorizontal: 5,
     maxWidth: '45%',
-    marginBottom: 10,
+    marginBottom: 25,
     marginLeft: 5,
     position: 'relative',
 
@@ -121,7 +140,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 2,
     fontWeight: '600',
-    
+
 
   },
   movieRating: {
@@ -137,5 +156,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 0,
     top: 0,
+  },
+  crown: {
+    width: 24,
+    height: 15,
+    position: 'absolute',
+    top: 5,
+    tintColor: 'gold'
+
   }
 })

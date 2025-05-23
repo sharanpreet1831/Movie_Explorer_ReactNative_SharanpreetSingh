@@ -26,7 +26,7 @@ import axios from 'axios';
   type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
   
   const Login_SignUp = () => {
-    const [emailOrUsername, setEmailOrUsername] = useState<string>('a@gmail.com');
+    const [emailOrUsername, setEmailOrUsername] = useState<string>('@gmail.com');
     const [password, setPassword] = useState<string>('123456789');
     const [secure, setSecure] = useState<boolean>(true);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -91,6 +91,7 @@ import axios from 'axios';
   
           setLogged(!logged);
         } else {
+          console.log(data)
           Alert.alert("Login Failed", data.message || "Invalid credentials");
         }
       } catch (error) {
@@ -116,7 +117,7 @@ import axios from 'axios';
               style={styles.logo}
               resizeMode="contain"
             />
-            <Text style={styles.Mainheading} testID='MovieVerse'>MovieVerse</Text>
+            <Text style={styles.Mainheading} testID='MovieVerse'>Movie Explorer</Text>
           </View>
   
           <TextInput
@@ -162,7 +163,10 @@ import axios from 'axios';
   
           <View style={styles.LineForSignup}>
             <Text style={{ color: "white", fontWeight: '300', fontSize: 15 }}>Don't Have an account?</Text>
-            <Button title='Sign up' onPress={() => navigation.navigate('SignUp')} testID="signup-button" />
+            <TouchableOpacity   onPress={() => navigation.navigate('SignUp')}  testID="signup-button"  >
+              <Text style = {styles.signup}> Sign up</Text>
+            </TouchableOpacity>
+            
           </View>
         </SafeAreaView>
       </LinearGradient>
@@ -307,6 +311,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         zIndex: 10,
     },
+    signup:{
+      color : 'blue',
+      fontSize : 20,
+      
+    }
 })
 
 

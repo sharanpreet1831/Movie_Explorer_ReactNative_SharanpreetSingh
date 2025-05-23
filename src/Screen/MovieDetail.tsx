@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Alert,
   Image,
   ImageBackground,
   StyleSheet,
@@ -29,6 +30,32 @@ const MovieDetail = () => {
   const route = useRoute();
   const { movie } = route.params as RouteParams;
 
+  const addwatchlist =  async(id: string) => {
+   try {
+      const url = `https://movie-ror-priyanshu-singh.onrender.com/api/v1/watchlist/${id}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+
+        },
+         body: JSON.stringify({ id }),
+
+      });
+       if (!response.ok) {
+      throw new Error(`Failed to remove movie with id: ${id}`);
+     
+    } else {
+        Alert.alert("Movie Added to Watchlist");
+      }
+   
+
+    }
+    catch (error) {
+      console.error(error);
+    }
+  }
+
   return (
     <View style={styles.mainContainer} testID="MovieDetailScreen">
       <View style={styles.imageView}>
@@ -40,7 +67,12 @@ const MovieDetail = () => {
         >
           <TouchableOpacity
             style={styles.backbuttonWrapper}
-            onPress={() => navigation.goBack()}
+        
+            onPress={() => {
+              navigation.goBack()
+            } 
+              
+            }
           >
             <Image
               source={require('../Assests/Image/chevron.backward.png')}
@@ -67,9 +99,16 @@ const MovieDetail = () => {
           <View style={styles.genreRow}>
             <View style={styles.genreTag}>
               <Text style={styles.genreText} testID="GenreTags">
-                {movie.genre.name}
+                {movie.genre?.name}
               </Text>
+              
             </View>
+            <TouchableOpacity onPress={() =>{
+              addwatchlist(movie.id)
+            }}>
+              <Image source={require('../Assests/Image/bookmark.png')} style = {{marginLeft : 150, width : 50, height : 40 , resizeMode : 'contain'}} />
+            </TouchableOpacity>
+            
           </View>
 
           <Text style={styles.director} testID="Moviedirector">
@@ -136,6 +175,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     marginVertical: 10,
+    
+    width : '100%'
   },
   genreTag: {
     borderWidth: 1,

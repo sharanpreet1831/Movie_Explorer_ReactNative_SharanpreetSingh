@@ -1,17 +1,16 @@
-/* eslint-disable react-native/no-inline-styles */
 
 
 
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Button,
-  ScrollView,
-  StyleSheet,
+  FlatList,
   Text,
   TextInput,
   TouchableOpacity,
   View,
+  StyleSheet,
+  ScrollView,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Movie from '../Component/Movie';
@@ -25,87 +24,144 @@ interface MovieType {
   id: number;
   title: string;
   genre: Genre;
-  [key: string]: any; 
+  [key: string]: any;
 }
 
 const ExplorerScreen: React.FC = () => {
-  const categories: string[] = ['All', 'Action', 'Romance', 'Comedy', 'Drama', 'Horror', 'Sci-Fi'];
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const categories = [
+    { id: null, name: 'All' },
+    { id: 3, name: 'Action' },
+    { id: 12, name: 'Romance' },
+    { id: 2, name: 'Comedy' },
+    { id: 10, name: 'Drama' },
+    { id: 11, name: 'Horror' },
+    { id: 4, name: 'Sci-Fi' },
+  ];
+
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [movies, setMovies] = useState<MovieType[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [page, setPage] = useState<number>(1);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
-  const filteredMovies = selectedCategory && selectedCategory !== 'All'
-    ? movies.filter((movie) => movie.genre.name.toLowerCase() === selectedCategory.toLowerCase())
-    : movies;
+  const PAGE_SIZE = 10;
 
-  const fetchMovies = async () => {
+  const fetchMoviesByGenre = async (genreId: number | null, pageNum = 1) => {
+    if (loading || (!hasMore && genreId === null)) return;
+
+    setLoading(true);
     try {
-      const url = 'https://movie-ror-priyanshu-singh.onrender.com/api/v1/movies?page=1';
-      const response = await fetch(url);
-      const json = await response.json();
-      setMovies(json.movies);
-      console.log(json.movies);
+      let url = '';
+      let newMovies: MovieType[] = [];
+
+      if (genreId === null) {
+       
+        url = `https://movie-ror-priyanshu-singh.onrender.com/api/v1/movies?page=${pageNum}&per_page=${PAGE_SIZE}`;
+        const response = await fetch(url);
+        const json = await response.json();
+        newMovies = json.movies || [];
+        console.log(newMovies);
+
+        setMovies(prev => (pageNum === 1 ? newMovies : [...prev, ...newMovies]));
+        setPage(pageNum + 1);
+
+        if (newMovies.length < PAGE_SIZE) {
+          setHasMore(false);
+        }
+      } else {
+       
+        url = `https://movie-ror-priyanshu-singh.onrender.com/api/v1/movies?genre_id=${genreId}`;
+        const response = await fetch(url);
+        const json = await response.json();
+        newMovies = json.movies || [];
+        console.log(newMovies);
+        
+
+        setMovies(newMovies);
+        setPage(2); 
+        setHasMore(false); 
+      }
     } catch (error: any) {
-      console.error('Failed to fetch movies:', error?.message || error);
+      console.error('Failed to fetch movies:', error.message || error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchMovies();
+    fetchMoviesByGenre(null, 1);
   }, []);
+
+  const filteredMovies = movies.filter(movie =>
+    movie.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <LinearGradient colors={['#051937', '#000000']} style={{ flex: 1 }}>
       <View style={styles.mainContainer}>
         <View style={styles.searchBoxwrap}>
-          <TextInput placeholder="Search" style={styles.searchBox} placeholderTextColor="black" />
+          <TextInput
+            placeholder="Search"
+            style={styles.searchBox}
+            placeholderTextColor="black"
+            onChangeText={setSearchQuery}
+          />
         </View>
 
-        <View>
-          <ScrollView contentContainerStyle={{paddingHorizontal: 20}} horizontal showsHorizontalScrollIndicator={false}>
-            {categories.map((category, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() =>
-                  setSelectedCategory((prev) => (prev === category ? null : category))
+        <ScrollView
+          contentContainerStyle={{ paddingHorizontal: 20, marginBottom : 8 }}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+        >
+          {categories.map((category, index) => (
+            <TouchableOpacity
+              key={index}
+              onPress={() => {
+                console.log("selected category id ", category.id);
+
+                setPage(1); 
+                setSelectedCategory(prev => (prev === category.id ? null : category.id));
+
+                if (category.id === null) {
+                  setHasMore(true);
+                } else {
+                  setHasMore(false);
                 }
-                testID={`category-${category}`}
-              >
-                <View
-                  style={[
-                    styles.box,
-                    {
-                      backgroundColor: selectedCategory === category ? 'blue' : 'grey',
-                    },
-                  ]}
-                >
-                  <Text style={{ color: 'white' }}>{category}</Text>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
 
-        {loading ? (
-          <ActivityIndicator  testID="loadingIndicator" size="large" color="#fff" style={{ marginTop: 50 }} />
+                fetchMoviesByGenre(category.id, 1);
+              }}
+            >
+              <View
+                style={[
+                  styles.box,
+                  { backgroundColor: selectedCategory === category.id ? 'blue' : 'grey' },
+                ]}
+              >
+                <Text style={{ color: 'white' }}>{category.name}</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        {loading && page === 1 ? (
+          <ActivityIndicator testID="loadingIndicator" size="large" color="#fff" style={{ marginTop: 50 }} />
         ) : (
-          <ScrollView
-            contentContainerStyle = {
-                {
-            flexDirection: 'row',
-              flexWrap: 'wrap',
-              paddingBottom: 100,
-              paddingTop: 20,
-              justifyContent: 'space-around'
+          <FlatList
+            data={filteredMovies}
+            keyExtractor={(item) => item.id.toString()}
+            numColumns={2}
+            columnWrapperStyle={{ justifyContent: 'space-around' }}
+            contentContainerStyle={{ paddingBottom: 100, paddingTop: 20 }}
+            renderItem={({ item }) => <Movie key={item.id} data={item} testID="MovieCom" />}
+            onEndReached={() => {
+              if (selectedCategory === null && hasMore && !loading) {
+                fetchMoviesByGenre(null, page);
+              }
             }}
-          >
-            {filteredMovies.map((item) => (
-              <Movie key={item.id} data={item} testID="MovieCom" />
-            ))}
-            <Button title="Load more" onPress={() => {}} />
-          </ScrollView>
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={loading && <ActivityIndicator size="small" color="#fff" />}
+          />
         )}
       </View>
     </LinearGradient>
@@ -115,32 +171,35 @@ const ExplorerScreen: React.FC = () => {
 export default ExplorerScreen;
 
 const styles = StyleSheet.create({
-    mainContainer: {
-        marginTop: 60,
+  mainContainer: {
+    marginTop: 30,
+  },
+  searchBoxwrap: {
+    marginHorizontal: 20,
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  searchBox: {
+    paddingHorizontal: 20,
+    padding: 10,
+    backgroundColor: '#9CA3AF',
+    borderRadius: 15,
+  },
+  box: {
+    width: 80,
+    height: 30,
+    backgroundColor: 'grey',
+    marginRight: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 40,
+  },
+});
 
 
-    },
-    searchBoxwrap: {
 
-        marginHorizontal: 20,
-        justifyContent: 'center',
-        marginBottom: 10
 
-    },
-    searchBox: {
-        paddingHorizontal: 20,
-        padding: 10,
-        backgroundColor: '#9CA3AF',
 
-        borderRadius: 15,
-    },
-    box: {
-        width: 80,
-        height: 30,
-        backgroundColor: 'grey',
-        marginRight: 10,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 40,
-    },
-})
+
+
+

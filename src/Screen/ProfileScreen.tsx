@@ -46,7 +46,7 @@ const ProfileScreen = () => {
   }, []);
 
   const handleOut = () => {
-    
+
     Alert.alert(
       'Confirm Logout',
       'Are you sure you want to log out?',
@@ -58,7 +58,10 @@ const ProfileScreen = () => {
         {
           text: 'Logout',
           style: 'destructive',
-          onPress: confirmLogout,
+          onPress: () => {
+          
+            confirmLogout();
+          },
         },
       ],
       { cancelable: true }
@@ -66,9 +69,12 @@ const ProfileScreen = () => {
   };
 
   const confirmLogout = async () => {
+    const token = await AsyncStorage.getItem('token');
+    console.log(token)
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem('token');
+      console.log(token)
       if (!token) {
         throw new Error('No token found');
       }
@@ -84,12 +90,13 @@ const ProfileScreen = () => {
       if (res.status === 200) {
         await AsyncStorage.removeItem('token');
         await AsyncStorage.removeItem('userData');
-        navigation.popToTop(); // Ensure this is correct for your navigation setup
+        navigation.popToTop();
       } else {
         throw new Error('Logout failed');
       }
     } catch (error) {
-      console.error('Logout error:', error);
+      
+      console.error('Logout error:', error.response);
       Alert.alert('Error', 'Failed to log out. Please try again.');
     } finally {
       setLoading(false);
@@ -129,7 +136,7 @@ const ProfileScreen = () => {
             {userdata?.email || 'email@example.com'}
           </Text>
           <Text style={styles.planType}>
-            {userdata?.plan_type || 'Free Plan'}
+            {userdata?.role === 'supervisor' ? 'Supervisor' : (userdata?.plan_type || 'Free Plan')}
           </Text>
         </View>
       </View>

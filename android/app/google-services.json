@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "49295472820",
+    "project_id": "movieverse-dbde5",
+    "storage_bucket": "movieverse-dbde5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:49295472820:android:91ad94ca047e41e7c5bfe1",
+        "android_client_info": {
+          "package_name": "com.movie_explorer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCMOGfjqV_hlSPTaVCRJPlFw7EcMPooXRI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

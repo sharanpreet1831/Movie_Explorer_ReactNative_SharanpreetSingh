@@ -26,7 +26,7 @@ const WebViewScreen = () => {
             },
           }
         );
-        return response.data; 
+        return response; 
       } catch (error) {
         console.error('Payment success error:', error.response?.data || error.message);
         throw error; 
@@ -38,7 +38,10 @@ const WebViewScreen = () => {
        
         
         if(navState.url.includes('success')){
+          console.log(navState)
+          console.log("succes")
           const res = await handlePaymentSuccessfulPayment(session_id)
+          console.log(res);
           if(res.status ===  200){
             navigation.navigate('Success');
           }

@@ -77,7 +77,7 @@ const SubscriptionScreen: React.FC = () => {
       {
         PlanName: 'Premium',
         PlanPrice: 599,
-        PlanFeature: ['4K Streaming', '4 Devices', 'Premium Content', 'Offline Access', 'Ad-Free'],
+        PlanFeature: ['4K Streaming', '1 Devices', 'Premium Content', 'Ad-Free'],
       },
     ];
     setPlandata(plans);
@@ -134,8 +134,14 @@ const SubscriptionScreen: React.FC = () => {
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={styles.button}
-            onPress={checkout}
-            disabled={userdata?.role === 'supervisor'}
+            onPress={() => {
+              if (userdata?.role === 'supervisor') {
+                Alert.alert('You are admin');
+              } else {
+                checkout()
+              }
+            }}
+            // disabled={userdata?.role === 'supervisor'}
           >
             <LinearGradient
               colors={['rgba(115, 151, 223, 0.8)', 'rgba(103, 140, 234, 0.3)']}

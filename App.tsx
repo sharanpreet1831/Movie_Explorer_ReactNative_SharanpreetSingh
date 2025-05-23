@@ -1,13 +1,49 @@
-import React from 'react'
-// import BottomTabNavigation from './src/navigation/BottomTabNavigation'
-// import SignUp from './src/Screen/SignUp'
-// import Login_SignUp from './src/Screen/Login_SignUp'
+import React, { useEffect } from 'react'
+
 import StackNavigation from './src/navigation/StackNavigation'
-// import AddMovie from './src/Screen/AddMovie'
-// import MovieEdit from './src/Component/MovieEdit'
+
 import { StripeProvider } from '@stripe/stripe-react-native'
 
+
+import messaging from '@react-native-firebase/messaging';
+import {Alert, PermissionsAndroid} from 'react-native';
+
 const App = () => {
+  
+  useEffect(() => {
+    requestNotificationPermissionAndroid();
+  }, []);
+
+  const requestNotificationPermissionAndroid = async () => {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+    );
+
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      getFCMToken();
+    } else {
+      console.log('Notification permission denied');
+    }
+  };
+
+  const getFCMToken = async () => {
+    try {
+      const token = await messaging().getToken();
+      console.log(token);
+    } catch (error) {
+      console.error('Error retrieving FCM token:', error);
+    }
+  };
+
+  useEffect(() => {
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      Alert.alert(remoteMessage.notification?.title, remoteMessage.notification?.body);
+    });
+
+    return unsubscribe;
+  }, []);
+
+
   return (
    <StackNavigation  />
     

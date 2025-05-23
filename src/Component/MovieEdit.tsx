@@ -1,7 +1,8 @@
-import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Alert, Image, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import LinearGradient from 'react-native-linear-gradient';
 import DropDownPicker from 'react-native-dropdown-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface MovieData {
     id: string;
@@ -34,52 +35,97 @@ const MovieEdit: React.FC<MovieEditProps> = ({ setModalVisible, data }) => {
         { label: 'HBO', value: 'hbo' },
     ]);
 
-    const [title, setTitle] = useState<string>('');
-    const [genre, setGenre] = useState<string>('');
-    const [year, setYear] = useState<string>('');
-    const [rating, setRating] = useState<string>('');
-    const [director, setDirector] = useState<string>('');
-    const [duration, setDuration] = useState<string>('');
-    const [description, setDescription] = useState<string>('');
-    const [isPremium, setIsPremium] = useState<string>('');
-    const [poster, setPoster] = useState<string>('');
-    const [banner, setBanner] = useState<string>('');
+    const [title, setTitle] = useState<string>(data?.title);
+    const [genre, setGenre] = useState<string>(data?.genre.name);
+    const [year, setYear] = useState<string>(data?.release_year);
+    const [rating, setRating] = useState<string>(data?.rating);
+    const [director, setDirector] = useState<string>(data?.director);
+    const [duration, setDuration] = useState<string>(data?.duration);
+    const [description, setDescription] = useState<string>(data?.description);
+    const [isPremium, setIsPremium] = useState<string>(data?.premium);
+    const [openPremium, setOpenPremium] = useState(false);
+
 
     useEffect(() => {
         if (data) {
-            setTitle(data.title || '');
-            setGenre(data.genre || '');
-            setYear(data.year?.toString() || '');
-            setRating(data.rating?.toString() || '');
-            setDirector(data.director || '');
-            setDuration(data.duration?.toString() || '');
-            setDescription(data.description || '');
-            setPlatform(data.platform || null);
-            setIsPremium(data.isPremium ? 'Yes' : 'No');
-            setPoster(data.poster || '');
-            setBanner(data.banner || '');
+            console.log(data);
+
+            setTitle(data.title);
+            setGenre(data.genre);
+            setYear(String(data.release_year));
+            setRating(String(data.rating));
+            setDirector(data.director);
+            setDuration(String(data.duration));
+            setDescription(data.description);
+            setPlatform(data.platform);
+            setIsPremium(data.premium);
         }
     }, [data]);
 
+
     const handleSave = () => {
-        const updatedMovie = {
-            id: data?.id,
-            title,
-            genre,
-            year,
-            rating,
-            director,
-            duration,
-            description,
-            platform,
-            isPremium: isPremium.toLowerCase() === 'yes',
-            poster,
-            banner,
-        };
-        console.log("Updated movie data:", updatedMovie);
-        // TODO: Save this data to backend or state
-        setModalVisible(false);
+        if (!title || !genre || !year || !rating || !director || !duration || !description) {
+            Alert.alert('Validation Error', 'Please fill in all required fields.');
+            return;
+        }
+
+        uploadDocument();
     };
+    const premiumOptions = [
+    { label: 'Yes', value: true },
+    { label: 'No', value: false },
+  ];
+
+
+    const uploadDocument = async () => {
+        const url = `https://movie-ror-priyanshu-singh.onrender.com/api/v1/movies/${data.id}`;
+        const formData = new FormData();
+
+        formData.append('movie[title]', title);
+        formData.append('movie[genre_id]', data?.genre.id || '');
+        formData.append('movie[release_year]', Number(year))
+        formData.append('movie[rating]', Number(rating));
+        formData.append('movie[director]', director);
+        formData.append('movie[duration]', Number(duration));
+        formData.append('movie[description]', description);
+        // formData.append('movie[platform]', 'netflix');
+        formData.append('movie[is_premium]', isPremium);
+        formData.append('movie[main_lead]', 'main lead');
+        formData.append('movie[streaming_platform]', 'Netflix');
+
+
+
+console.log(formData);
+
+
+
+        try {
+            const token = await AsyncStorage.getItem('token');
+            console.log(formData)
+            const response = await fetch(url, {
+                method: 'PUT',
+                body: formData,
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            const result = await response.json();
+            console.log('Backend Response:', result);
+
+            if (response.ok) {
+                Alert.alert('Success', 'Movie added successfully!');
+                setModalVisible(false);
+            } else {
+                Alert.alert('Error', result.message || 'Failed to add movie');
+            }
+        } catch (error) {
+            console.error('Error uploading movie:', (error));
+            Alert.alert('Error', 'An error occurred while uploading the movie.');
+        }
+    };
+
 
     return (
         <LinearGradient colors={['#051937', '#000000']} style={styles.gradient}>
@@ -102,7 +148,7 @@ const MovieEdit: React.FC<MovieEditProps> = ({ setModalVisible, data }) => {
                     <InputBox value={title} onChangeText={setTitle} placeholder={data?.title} />
 
                     <InputLabel text="Genre of the movie" />
-                    <InputBox value={genre} onChangeText={setGenre} placeholder={data?.genre} />
+                    <InputBox value={genre} onChangeText={setGenre} placeholder={data?.genre.name} />
 
                     <InputLabel text="Release year of the movie" />
                     <InputBox value={year} onChangeText={setYear} placeholder={data?.year?.toString()} keyboardType="numeric" />
@@ -133,14 +179,19 @@ const MovieEdit: React.FC<MovieEditProps> = ({ setModalVisible, data }) => {
                         dropDownContainerStyle={styles.dropdownContainer}
                     />
 
-                    <InputLabel text="Whether the movie is premium" />
-                    <InputBox value={isPremium} onChangeText={setIsPremium} placeholder="Yes/No" />
-
-                    <InputLabel text="Poster image file (JPEG or PNG)" />
-                    <InputBox value={poster} onChangeText={setPoster} placeholder="Poster URL or File Name" />
-
-                    <InputLabel text="Banner image file (JPEG or PNG)" />
-                    <InputBox value={banner} onChangeText={setBanner} placeholder="Banner URL or File Name" />
+                    <InputLabel text="Is the movie premium?" />
+                    <DropDownPicker
+                        open={openPremium}
+                        value={isPremium}
+                        items={premiumOptions}
+                        setOpen={setOpenPremium}
+                        setValue={setIsPremium}
+                        setItems={setItem => setIsPremium(setItem.value)}
+                        placeholder="Select true or false"
+                        style={styles.dropdown}
+                        textStyle={styles.dropdownText}
+                        dropDownContainerStyle={styles.dropdownContainer}
+                    />
 
                     <TouchableOpacity style={styles.button} onPress={handleSave}>
                         <Text style={styles.buttonText}>Add Movie</Text>
